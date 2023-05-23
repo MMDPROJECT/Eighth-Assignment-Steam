@@ -10,6 +10,7 @@ public class ServerMain {
             ServerSocket serverSocket = new ServerSocket(8888);
             System.out.println("SERVER HAS STARTED LISTENING ON PORT `8888`.");
             while (true){
+                //Assigning each client an single thread
                 Socket socket = serverSocket.accept();
                 System.out.println("CLIENT WITH IP ADDRESS:" + socket.getLocalAddress() + " HAS BEEN ACCEPTED.");
                 SteamService steamService = new SteamService(socket);
