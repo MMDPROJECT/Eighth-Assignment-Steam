@@ -13,43 +13,41 @@ public class Response {
         try {
             OutputStream outputStream = socket.getOutputStream();
             out = new PrintWriter(outputStream);
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("responseType", "SIGN UP");
+            JSONObject jsonResponse = new JSONObject();
+            jsonResponse.put("responseType", "SIGN UP");
             if (!flag){
-                jsonObject.put("response", "ACCOUNT HAS BEEN SUCCESSFULLY SIGNED UP");
+                jsonResponse.put("response", "ACCOUNT HAS BEEN SUCCESSFULLY SIGNED UP");
             } else {
-                jsonObject.put("response", "THIS USERNAME ALREADY EXISTS");
+                jsonResponse.put("response", "THIS USERNAME ALREADY EXISTS");
             }
             //Sending json object over socket
-            System.out.println("Sent and json to " + socket.getRemoteSocketAddress());
-            out.println(jsonObject);
+            out.println(jsonResponse);
             out.flush();
         }
         catch (IOException io){
             io.printStackTrace();
         }
-        System.out.println(socket.isClosed());
 //        finally {
 //            assert out != null;
 //            out.close();
 //        }
     }
 
-    public static void sign_in_res(Socket socket, Boolean flag){    //flag == false means username or password is wrong, flag == true means user successfully logged in
+    public static void sign_in_res(Socket socket, Boolean flag, JSONObject jsonObject){    //flag == false means username or password is wrong, flag == true means user successfully logged in
         PrintWriter out = null;
         try {
-            System.out.println("socket is " + socket.isClosed());
             OutputStream outputStream = socket.getOutputStream();
             out = new PrintWriter(outputStream);
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("responseType", "SIGN IN");
+            JSONObject jsonResponse = new JSONObject();
+            jsonResponse.put("responseType", "SIGN IN");
             if (flag){
-                jsonObject.put("response", "VALID LOGIN");
+                jsonResponse.put("response", "VALID LOGIN");
+                jsonResponse.put("Account", jsonObject);
             } else {
-                jsonObject.put("response", "INVALID LOGIN");
+                jsonResponse.put("response", "INVALID LOGIN");
             }
             //Sending json object over the socket
-            out.println(jsonObject);
+            out.println(jsonResponse);
             out.flush();
         }
         catch (IOException io){

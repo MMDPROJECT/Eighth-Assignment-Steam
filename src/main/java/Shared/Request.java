@@ -17,7 +17,9 @@ public class Request {
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
-            out.close();
+//            System.out.println("Before closing out " + socket.isClosed());
+//            out.close();
+//            System.out.println("After closing out " + socket.isClosed());
         }
     }
     public static void sign_in_req(Socket socket, JSONObject jsonObject){
@@ -30,7 +32,9 @@ public class Request {
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
-            out.close();
+//            System.out.println("Before closing out " + socket.isClosed());
+//            out.close();
+//            System.out.println("After closing out " + socket.isClosed());
         }
     }
     //TODO

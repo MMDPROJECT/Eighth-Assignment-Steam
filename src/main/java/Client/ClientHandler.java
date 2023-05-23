@@ -1,6 +1,8 @@
 package Client;
 
 import Shared.Request;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -62,18 +64,10 @@ public class ClientHandler {
                     jsonObject.put("password", password);
                     jsonObject.put("dateOfBirth", date_of_birth);
                     //Sending Request
-                    System.out.println("SENDING: SIGN UP REQUEST...");
+                    System.out.println("SENDING: SIGN UP REQUEST");
                     Request.sign_up_req(clientSocket, jsonObject);
                     //Receiving Response Doesn't work for now
-//                    Thread.sleep(500);
-//                    while(!in.hasNext())
-//                        continue;
-                    try {
-                        System.out.println(clientSocket.isClosed());
-                        in = new Scanner(clientSocket.getInputStream());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+                    Thread.sleep(500);
                     String response = in.nextLine();
                     JSONObject jsonResponse = new JSONObject(response);
                     System.out.println("RECEIVING: " + jsonResponse.getString("response"));
@@ -90,18 +84,24 @@ public class ClientHandler {
                     jsonObject.put("username", username);
                     jsonObject.put("password", password);
                     //Sending Request
+                    System.out.println("SENDING: SIGN IN REQUEST");
                     Request.sign_in_req(clientSocket, jsonObject);
                     //Receiving Response Doesn't work for now
-
                     Thread.sleep(500);
                     String response = in.nextLine();
-                    JSONObject jsonResponse = new JSONObject(response);
-                    String validation = jsonResponse.getString("response");
+                    Gson gson = new Gson();
+                    JsonObject jsonResponse = gson.fromJson(response, JsonObject.class);
+                    String validation = jsonResponse.get("response").getAsString();
                     if (validation.equals("VALID LOGIN")){
-                        Account account = new Account(UUID.fromString(jsonResponse.getString("account_id")), jsonResponse.getString("username"), jsonResponse.getString("password"), LocalDate.parse(jsonResponse.getString("date_of_birth")));
+                        JsonObject jsonAccount = jsonResponse.get("Account").getAsJsonObject();
+                        Account account = new Account(UUID.fromString(jsonAccount.get("account_id").getAsString()),
+                                jsonAccount.get("username").getAsString(),
+                                jsonAccount.get("password").getAsString(),
+                                LocalDate.parse(jsonAccount.get("date_of_birth").getAsString()));
+                        System.out.println("yeahhhh");
                         userPage(account);
                     } else {
-                        System.out.println("RECEIVING INVALID USERNAME OR PASSWORD");
+                            System.out.println("RECEIVING INVALID USERNAME OR PASSWORD");
                     }
                 }
             }

@@ -39,15 +39,13 @@ public class SteamService implements Runnable {
     }
 
     public void doService() {
-        while (1==1) {
+        while (true) {
             while (!in.hasNext()){
                 try {
                     Thread.sleep(1000);
-                    System.out.println(socket.isClosed());
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                continue;
             }
             String jsonString = in.nextLine();
             System.out.println("Received " + jsonString);
@@ -57,17 +55,7 @@ public class SteamService implements Runnable {
                 return;
             } else {
                 executeRequest(jsonObject);
-                System.out.println("Executed request");
             }
-//            if (!in.hasNext()) {return;}
-//            String jsonString = in.nextLine();
-//            JSONObject jsonObject = new JSONObject(jsonString);
-//            String requestType = jsonObject.getString("requestType");
-//            if (requestType.equals("QUIT")) {
-//                return;
-//            } else {
-//                executeRequest(jsonObject);
-//            }
         }
     }
 
@@ -91,14 +79,14 @@ public class SteamService implements Runnable {
             //Query to database and sending response
             Account account = QueryDB.accountLogin(username, password);
             if (account != null){
-                JSONObject jsonObject1 = new JSONObject();
-                jsonObject1.put("account_id", account.getAccount_id());
-                jsonObject1.put("username", account.getUsername());
-                jsonObject1.put("password", account.getPassword());
-                jsonObject1.put("date_of_birth", account.getDate_of_birth());
-                Response.sign_in_res(socket, true);
+                JSONObject jsonAccount = new JSONObject();
+                jsonAccount.put("account_id", account.getAccount_id());
+                jsonAccount.put("username", account.getUsername());
+                jsonAccount.put("password", account.getPassword());
+                jsonAccount.put("date_of_birth", account.getDate_of_birth());
+                Response.sign_in_res(socket, true, jsonAccount);
             } else {
-                Response.sign_in_res(socket, false);
+                Response.sign_in_res(socket, false, null);
             }
         }
     }
