@@ -1,11 +1,10 @@
 package Server;
 
 import Client.Account;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -15,23 +14,60 @@ public class QueryDB {
 
     static {
         try {
+            //Establishing connection to database
             conn = ConnectionDB.connectDB();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
+    public static JsonObject selectAllGames(){
+        JsonObject rows = new JsonObject();
+
+        //Query to database
+        String query = "SELECT * FROM Games";
+        try {
+            Connection conn = ConnectionDB.connectDB();
+            Statement stmt = conn.createStatement();
+            ResultSet resultSet = stmt.executeQuery(query);
+            int counter = 1;
+            while (resultSet.next()){
+                //Storing each row as JsonArray
+                JsonArray row = new JsonArray();
+                for (int i = 1; i <= 10; i++){
+                    row.add(resultSet.getString(i));
+                }
+
+                //Adding each row to rows
+                rows.add("row" + counter, row);
+
+                //Counting rows
+                counter++;
+            }
+
+            //Adding row and column counts to the Json
+            rows.addProperty("rowCount", counter);
+            rows.addProperty("columnCount", 10);
+            return rows;
+        } catch (SQLException sqlException){
+            sqlException.getStackTrace();
+        }
+        return null;
+    }
+
     public static void insertFileToDB(ArrayList<String> arr, String pngPath){
+        //getting items from array
         String game_id = arr.get(0);
         String title = arr.get(1);
         String developer = arr.get(2);
         String genre = arr.get(3);
-        float price = Float.parseFloat(arr.get(4));
+        double price = Double.parseDouble(arr.get(4));
         int release_year = Integer.parseInt(arr.get(5));
         boolean controller_support = Boolean.parseBoolean(arr.get(6));
         int reviews = Integer.parseInt(arr.get(7));
         int size = Integer.parseInt(arr.get(8));
-        System.out.println("inserting" + arr);
+
+        //Query to database
         try {
             String query = "INSERT INTO Games (game_id, title, developer, genre, price, release_year, controller_support, reviews, size, file_path) VALUES (?,?,?,?,?,?,?,?,?,?)";
             Connection conn = ConnectionDB.connectDB();
@@ -47,14 +83,13 @@ public class QueryDB {
             psmt.setInt(9, size);
             psmt.setString(10, pngPath);
             psmt.executeUpdate();
-            System.out.println("inserted " + pngPath);
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     public static Boolean usernameExist(String username){
+        //Query to database
         String query = "SELECT * FROM Accounts WHERE username = ?";
         try {
             PreparedStatement psmt = conn.prepareStatement(query);
@@ -69,6 +104,7 @@ public class QueryDB {
     }
 
     public static Account accountLogin(String username, String password){
+        //Query to database
         String query = "SELECT account_id , username, password, date_of_birth FROM Accounts WHERE username = ?";
         try {
             PreparedStatement psmt = conn.prepareStatement(query);
@@ -78,6 +114,7 @@ public class QueryDB {
             if (Account.checkPassword(password, hashedPass)){   //compare actual password's hash with provided one
                 //username and password is valid
                 //Creating account and returning it back
+                //Parsing result set
                 UUID account_id = UUID.fromString(resultSet.getString("account_id"));
                 LocalDate date_of_birth = LocalDate.parse(resultSet.getString("date_of_birth"));
                 Account account = new Account(account_id, username, password, date_of_birth);

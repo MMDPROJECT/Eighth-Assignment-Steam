@@ -2,6 +2,7 @@ package Client;
 
 import Shared.Request;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.json.JSONObject;
 
@@ -15,6 +16,8 @@ public class ClientHandler {
     static Scanner input = new Scanner(System.in);
     private Socket clientSocket;
     private Scanner in;
+
+    //Constructor
 
     public ClientHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
@@ -57,20 +60,23 @@ public class ClientHandler {
                     String password = input.nextLine();
                     System.out.println("Enter Date of your birth:(in such format: yyyy-mm-dd):");
                     String date_of_birth = input.nextLine();
+
                     //Json
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("requestType", "SIGN UP");
-                    jsonObject.put("username", username);
-                    jsonObject.put("password", password);
-                    jsonObject.put("dateOfBirth", date_of_birth);
+                    JsonObject jsonObject = new JsonObject();
+                    jsonObject.addProperty("requestType", "SIGN UP");
+                    jsonObject.addProperty("username", username);
+                    jsonObject.addProperty("password", password);
+                    jsonObject.addProperty("date_of_birth", date_of_birth);
+
                     //Sending Request
                     System.out.println("SENDING: SIGN UP REQUEST");
                     Request.sign_up_req(clientSocket, jsonObject);
-                    //Receiving Response Doesn't work for now
+
+                    //Receiving Response
                     Thread.sleep(500);
                     String response = in.nextLine();
-                    JSONObject jsonResponse = new JSONObject(response);
-                    System.out.println("RECEIVING: " + jsonResponse.getString("response"));
+                    JsonObject jsonResponse = new Gson().fromJson(response, JsonObject.class);
+                    System.out.println("RECEIVING: " + jsonResponse.get("response").getAsString());
                 }
                 case 2 -> {
                     //SIGN IN
@@ -78,37 +84,110 @@ public class ClientHandler {
                     String username = input.nextLine();
                     System.out.println("Enter password:");
                     String password = input.nextLine();
+
                     //Json
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("requestType", "SIGN IN");
-                    jsonObject.put("username", username);
-                    jsonObject.put("password", password);
+                    JsonObject jsonObject = new JsonObject();
+                    jsonObject.addProperty("requestType", "SIGN IN");
+                    jsonObject.addProperty("username", username);
+                    jsonObject.addProperty("password", password);
+
                     //Sending Request
                     System.out.println("SENDING: SIGN IN REQUEST");
                     Request.sign_in_req(clientSocket, jsonObject);
-                    //Receiving Response Doesn't work for now
+
+                    //Receiving Response
                     Thread.sleep(500);
                     String response = in.nextLine();
-                    Gson gson = new Gson();
-                    JsonObject jsonResponse = gson.fromJson(response, JsonObject.class);
+                    JsonObject jsonResponse = new Gson().fromJson(response, JsonObject.class);
                     String validation = jsonResponse.get("response").getAsString();
-                    if (validation.equals("VALID LOGIN")){
+                    System.out.println("RECEIVING: " + jsonResponse.get("response").getAsString());
+
+                    //Login validation
+                    if (validation.equals("VALID LOGIN")) {
                         JsonObject jsonAccount = jsonResponse.get("Account").getAsJsonObject();
                         Account account = new Account(UUID.fromString(jsonAccount.get("account_id").getAsString()),
                                 jsonAccount.get("username").getAsString(),
                                 jsonAccount.get("password").getAsString(),
                                 LocalDate.parse(jsonAccount.get("date_of_birth").getAsString()));
-                        System.out.println("yeahhhh");
                         userPage(account);
-                    } else {
-                            System.out.println("RECEIVING INVALID USERNAME OR PASSWORD");
                     }
                 }
             }
         }
     }
 
-    public void userPage(Account account){
-        //TODO
+    public void userPage(Account account) throws InterruptedException {
+        System.out.println("""
+                SELECT FROM BELOW BY IT'S NUMBER
+                1- SHOW ALL AVAILABLE GAMES
+                2- SHOW AN SPECIFIC GAME
+                3- MANAGE DOWNLOAD
+                    -SHOW DOWNLOADED GAMES
+                    -DOWNLOAD A GAME
+                """);
+        int optionMenu = input.nextInt();
+        input.nextLine();
+        switch (optionMenu) {
+            case 1 -> {
+                //SHOW ALL AVAILABLE GAMES
+
+                //Json
+                JsonObject jsonObject = new JsonObject();
+                jsonObject.addProperty("requestType", "SHOW ALL AVAILABLE GAMES");
+
+                //Sending Request
+                System.out.println("SENDING :" + "SHOW ALL AVAILABLE GAMES REQUEST");
+                Request.show_all_games_req(clientSocket, jsonObject);
+
+                //Receiving response
+                Thread.sleep(500);
+                String response = in.nextLine();
+                JsonObject jsonResponse = new Gson().fromJson(response, JsonObject.class);
+                System.out.println("RECEIVING :" + jsonResponse.get("response").getAsString());
+
+                //Show table
+                showTable(jsonResponse);
+            }
+            case 2 -> {
+                //SHOW AN SPECIFIC GAME
+                //TODO
+            }
+            case 3 -> {
+                //MANAGE DOWNLOAD
+                System.out.println("""
+                        SELECT FROM BELOW BY IT'S NUMBER
+                        1- SHOW DOWNLOADED GAMES
+                        2- DOWNLOAD A GAME
+                        """);
+                optionMenu = input.nextInt();
+                input.nextLine();
+                switch (optionMenu) {
+                    case 1 -> {
+                        //SHOW DOWNLOADED GAMES
+                        //TODO
+                    }
+                    case 2 -> {
+                        //DOWNLOAD A GAME
+                        //TODO
+                    }
+                }
+            }
+        }
+    }
+
+    public static void showTable(JsonObject table) {
+        int rowCount = table.get("rowCount").getAsInt();
+        int columnCount = table.get("columnCount").getAsInt();
+
+        //Iterating through rows
+        for (int i = 1; i < rowCount; i++) {
+            JsonArray row = table.get("row" + i).getAsJsonArray();
+
+            //Iterating through columns
+            for (int j = 0; j < columnCount; j++) {
+                System.out.printf("%-50s", row.get(j));
+            }
+            System.out.println();
+        }
     }
 }

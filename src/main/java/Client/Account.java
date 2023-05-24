@@ -68,7 +68,7 @@ public class Account {
 
     private void insertAccount(){
         try {
-
+            //Connection and Query to database
             Connection conn = ConnectionDB.connectDB();
             String query = "INSERT INTO Accounts (account_id, username, password, date_of_birth) VALUES(?,?,?,?)";
             PreparedStatement psmt = conn.prepareStatement(query);
