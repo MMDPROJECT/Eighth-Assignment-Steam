@@ -56,7 +56,19 @@ public class Request {
     }
 
     public static void show_specific_game_req(Socket clientSocket, JsonObject jsonRequest){
-        //TODO
+        PrintWriter out = null;
+        try {
+            //Sending request to server
+            out = new PrintWriter(clientSocket.getOutputStream());
+            out.println(jsonRequest);
+            out.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+//            System.out.println("Before closing out " + socket.isClosed());
+//            out.close();
+//            System.out.println("After closing out " + socket.isClosed());
+        }
     }
 
     public static void show_downloaded_games_req(Socket clientSocket, JsonObject jsonRequest){

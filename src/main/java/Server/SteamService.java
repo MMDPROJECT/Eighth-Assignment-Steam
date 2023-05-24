@@ -2,6 +2,7 @@ package Server;
 
 import Client.Account;
 import Shared.Response;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.json.JSONObject;
 
@@ -50,57 +51,73 @@ public class SteamService implements Runnable {
             //Receiving data
             String jsonString = in.nextLine();
             System.out.println("RECEIVED " + jsonString);
-            JSONObject jsonObject = new JSONObject(jsonString);
-            String requestType = jsonObject.getString("requestType");
+
+            JsonObject jsonRequest = new Gson().fromJson(jsonString, JsonObject.class);
+            String requestType = jsonRequest.get("requestType").getAsString();
             if (requestType.equals("QUIT")) {
                 return;
             } else {
-                executeRequest(jsonObject);
+                executeRequest(jsonRequest);
             }
         }
     }
 
-    public void executeRequest(JSONObject jsonObject) {
-        String requestType = jsonObject.getString("requestType");
+    public void executeRequest(JsonObject jsonRequest) {
+        String requestType = jsonRequest.get("requestType").getAsString();
 
-        if (requestType.equals("SIGN UP")) {
-            //Query to database
-            if (!QueryDB.usernameExist(jsonObject.getString("username"))) {
-                //Insertion into database
-                new Account(jsonObject.getString("username"), jsonObject.getString("password"), LocalDate.parse(jsonObject.getString("dateOfBirth")));
-                //Sending response
-                Response.sign_up_res(serverSocket, false);
-            } else {
-                //Sending response
-                Response.sign_up_res(serverSocket, true);
+        switch (requestType) {
+            case "SIGN UP" -> {
+                //Query to database
+                if (!QueryDB.usernameExist(jsonRequest.get("username").getAsString())) {
+                    //Insertion into database
+                    new Account(jsonRequest.get("username").getAsString(), jsonRequest.get("password").getAsString(), LocalDate.parse(jsonRequest.get("dateOfBirth").getAsString()));
+                    //Sending response
+                    Response.sign_up_res(serverSocket, false);
+                } else {
+                    //Sending response
+                    Response.sign_up_res(serverSocket, true);
+                }
             }
-        }
-
-        else if (requestType.equals("SIGN IN")){
-            String username = jsonObject.getString("username");
-            String password = jsonObject.getString("password");
-            //Query to database and sending response
-            Account account = QueryDB.accountLogin(username, password);
-            if (account != null){
-                //Successfully logged in
-                JSONObject jsonAccount = new JSONObject();
-                jsonAccount.put("account_id", account.getAccount_id());
-                jsonAccount.put("username", account.getUsername());
-                jsonAccount.put("password", account.getPassword());
-                jsonAccount.put("date_of_birth", account.getDate_of_birth());
-                //Sending response
-                Response.sign_in_res(serverSocket, true, jsonAccount);
-            } else {
-                //Login was Unsuccessful
-                Response.sign_in_res(serverSocket, false, null);
+            case "SIGN IN" -> {
+                String username = jsonRequest.get("username").getAsString();
+                String password = jsonRequest.get("password").getAsString();
+                //Query to database and sending response
+                Account account = QueryDB.accountLogin(username, password);
+                if (account != null) {
+                    //Successfully logged in
+                    JSONObject jsonAccount = new JSONObject();
+                    jsonAccount.put("account_id", account.getAccount_id());
+                    jsonAccount.put("username", account.getUsername());
+                    jsonAccount.put("password", account.getPassword());
+                    jsonAccount.put("date_of_birth", account.getDate_of_birth());
+                    //Sending response
+                    Response.sign_in_res(serverSocket, true, jsonAccount);
+                } else {
+                    //Login was Unsuccessful
+                    Response.sign_in_res(serverSocket, false, null);
+                }
             }
-        }
+            case "SHOW ALL AVAILABLE GAMES" -> {
+                //Query to database
+                JsonObject jsonResponse = QueryDB.selectAllGames();
+                //Sending response
+                Response.show_all_game_res(serverSocket, jsonResponse);
+            }
+            case "SHOW AN SPECIFIC GAME" -> {
+                //Json
+//                System.out.println("Haha");
+                String game_id = jsonRequest.get("game_id").getAsString();
 
-        else if (requestType.equals("SHOW ALL AVAILABLE GAMES")){
-            //Query to database
-            JsonObject jsonResponse = QueryDB.selectAllGames();
-            //Sending response
-            Response.show_all_game_res(serverSocket, jsonResponse);
+                //Query to database
+                JsonObject jsonResponse = QueryDB.selectSpecificGame(game_id);
+                if (jsonResponse != null){
+                    //Sending response
+                    Response.show_specified_game_res(serverSocket, true,jsonResponse);
+                }
+                else {
+                    Response.show_specified_game_res(serverSocket, false, jsonResponse);
+                }
+            }
         }
     }
 }

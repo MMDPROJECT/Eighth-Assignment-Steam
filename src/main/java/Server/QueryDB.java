@@ -46,13 +46,38 @@ public class QueryDB {
             }
 
             //Adding row and column counts to the Json
-            rows.addProperty("rowCount", counter);
+            rows.addProperty("rowCount", counter - 1);
             rows.addProperty("columnCount", 10);
             return rows;
         } catch (SQLException sqlException){
             sqlException.getStackTrace();
         }
         return null;
+    }
+
+    public static JsonObject selectSpecificGame(String game_id){
+        //Query to database
+        try {
+            Connection conn = ConnectionDB.connectDB();
+            String query = "SELECT * FROM Games WHERE game_id = ?";
+            PreparedStatement psmt = conn.prepareStatement(query);
+            psmt.setString(1, game_id);
+            ResultSet resultSet = psmt.executeQuery();
+//            if (resultSet.next()){
+                JsonObject result = new JsonObject();
+                JsonArray row = new JsonArray();
+                for (int i = 1; i <= 10; i++){
+                    row.add(resultSet.getString(i));
+                }
+                result.addProperty("rowCount", 1);
+                result.addProperty("columnCount", 10);
+                result.add("row1", row);
+                return result;
+//            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+//        return null;
     }
 
     public static void insertFileToDB(ArrayList<String> arr, String pngPath){
