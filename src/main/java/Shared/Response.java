@@ -26,6 +26,7 @@ public class Response {
             }
 
             //Sending json object over socket
+            System.out.println("SENDING: " + jsonResponse);
             out.println(jsonResponse);
             out.flush();
         }
@@ -56,6 +57,7 @@ public class Response {
             }
 
             //Sending json object over the socket
+            System.out.println("SENDING: " + jsonResponse);
             out.println(jsonResponse);
             out.flush();
         }
@@ -79,6 +81,7 @@ public class Response {
             jsonResponse.addProperty("response", "SELECTED ALL AVAILABLE Games");
 
             //Sending json object over the socket
+            System.out.println("SENDING: " + jsonResponse);
             out.println(jsonResponse);
             out.flush();
         }
@@ -102,7 +105,56 @@ public class Response {
             jsonResponse.addProperty("response", "SELECTED SPECIFIED GAME");
 
             //Sending json object over the socket
-            System.out.println("Sending " + jsonResponse);
+            System.out.println("SENDING: " + jsonResponse);
+            out.println(jsonResponse);
+            out.flush();
+        }
+        catch (IOException io){
+            io.printStackTrace();
+        }
+//        finally {
+//            assert out != null;
+//            out.close();
+//        }
+    }
+
+    public static void show_downloaded_games_res(Socket serverSocket, Boolean flag, JsonObject jsonResponse){
+        PrintWriter out = null;
+        try {
+            //Connecting to output stream
+            OutputStream outputStream = serverSocket.getOutputStream();
+            out = new PrintWriter(outputStream);
+
+            //Json
+            jsonResponse.addProperty("response", "SELECTED DOWNLOADED GAMES");
+
+            //Sending json object over the socket
+            System.out.println("SENDING: " + jsonResponse);
+            out.println(jsonResponse);
+            out.flush();
+        }
+        catch (IOException io){
+            io.printStackTrace();
+        }
+//        finally {
+//            assert out != null;
+//            out.close();
+//        }
+    }
+
+    public static void download_game_res(Socket serverSocket, String game_id){
+        PrintWriter out = null;
+        try {
+            //Connecting to output stream
+            OutputStream outputStream = serverSocket.getOutputStream();
+            out = new PrintWriter(outputStream);
+
+            //Json
+            JsonObject jsonResponse = new JsonObject();
+            jsonResponse.addProperty("response", "SELECTED DOWNLOADED GAME");
+            jsonResponse.addProperty("game_id", game_id);
+            //Sending json object over the socket
+            System.out.println("SENDING: " + jsonResponse);
             out.println(jsonResponse);
             out.flush();
         }
