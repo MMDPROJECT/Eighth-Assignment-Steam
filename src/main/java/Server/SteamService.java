@@ -6,9 +6,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.json.JSONObject;
 
-import javax.imageio.ImageIO;
-import javax.xml.crypto.Data;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
 import java.time.LocalDate;
@@ -43,7 +40,7 @@ public class SteamService implements Runnable {
 
     public void doService() {
         while (true) {
-            while (!in.hasNext()){
+            while (!in.hasNextLine()){
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -172,6 +169,7 @@ public class SteamService implements Runnable {
         long fileSize = file.length();
         DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
         dataOutputStream.writeLong(fileSize);
+        dataOutputStream.flush();
 
         //Send the file data
         byte[] buffer = new byte[4096];
@@ -179,6 +177,7 @@ public class SteamService implements Runnable {
         while ((bytesRead = fileInputStream.read(buffer)) != -1) {
             outputStream.write(buffer, 0, bytesRead);
         }
+
         dataOutputStream.flush();
         outputStream.flush();
         fileInputStream.close();

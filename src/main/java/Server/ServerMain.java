@@ -13,7 +13,7 @@ public class ServerMain {
         try {
 //            System.out.println("Loading Resources");
 //            loadResourcesFiles();
-            ServerSocket serverSocket = new ServerSocket(8888);
+            ServerSocket serverSocket = new ServerSocket(56264);
             System.out.println("SERVER HAS STARTED LISTENING ON PORT `8888`.");
             while (true){
                 //Assigning each client an single thread
@@ -29,11 +29,12 @@ public class ServerMain {
     }
 
     public static void loadResourcesFiles(){
-        File directory = new File("src\\main\\java\\Server\\Resources");
+        File directory = new File("src\\main\\java\\Server\\Resources\\");
         File[] files;
         System.out.println(directory.getPath());
         System.out.println(directory.getAbsoluteFile());
         files = directory.listFiles();
+        System.out.println(directory.listFiles());
         assert files != null;
         for (File file : files){
             ArrayList<String> arr = new ArrayList<>();

@@ -57,6 +57,7 @@ public class QueryDB {
     }
 
     public static JsonObject selectAllGames(){
+        //Locked
         JsonObject rows = new JsonObject();
 
         //Query to database
@@ -88,6 +89,7 @@ public class QueryDB {
             sqlException.getStackTrace();
         }
         return null;
+        //Unlock
     }
 
     public static JsonObject selectSpecificGame(String game_id){

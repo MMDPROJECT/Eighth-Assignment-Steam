@@ -34,7 +34,7 @@ public class ClientHandler {
 
     public static void main(String[] args) {
         try {
-            Socket clientSocket = new Socket("localhost", 8888);
+            Socket clientSocket = new Socket("localhost", 56264);
             ClientHandler clientHandler = new ClientHandler(clientSocket);
             clientHandler.runMenu();
         } catch (IOException | InterruptedException e) {
@@ -290,6 +290,7 @@ public class ClientHandler {
         //Receive the file size from the server
         DataInputStream dataInputStream = new DataInputStream(inputStream);
         long fileSize = dataInputStream.readLong();
+        System.out.println(fileSize);
 
         //Receive the file data
         byte[] buffer = new byte[4096];
@@ -297,6 +298,7 @@ public class ClientHandler {
         long totalBytesRead = 0;
         while (totalBytesRead < fileSize && (bytesRead = inputStream.read(buffer)) != -1) {
             fileOutputStream.write(buffer, 0, bytesRead);
+            totalBytesRead += bytesRead;
         }
         fileOutputStream.flush();
         fileOutputStream.close();
