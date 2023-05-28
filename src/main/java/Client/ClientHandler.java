@@ -5,11 +5,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
-import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.Scanner;
 import java.util.UUID;
