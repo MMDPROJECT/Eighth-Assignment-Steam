@@ -102,4 +102,20 @@ public class Request {
 //            System.out.println("After closing out " + socket.isClosed());
         }
     }
+
+    public static void exit_req(Socket clientSocket, JsonObject jsonRequest){
+        PrintWriter out = null;
+        try {
+            //Sending request to server
+            out = new PrintWriter(clientSocket.getOutputStream());
+            out.println(jsonRequest);
+            out.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+//            System.out.println("Before closing out " + socket.isClosed());
+//            out.close();
+//            System.out.println("After closing out " + socket.isClosed());
+        }
+    }
 }

@@ -238,8 +238,9 @@ public class QueryDB {
 
     public static void downloadGame(String account_id, String game_id){
         //Query to database
-        String query = "UPDATE Downloads SET download_count = download_count + 1 WHERE account_id = " + account_id + " AND game_id = " + game_id;
+        String query = "UPDATE Downloads SET download_count = download_count + 1 WHERE account_id = '" + account_id + "' AND game_id = " + game_id;
         try {
+            System.out.println("yeah we did it");
             Statement stmt = conn.createStatement();
             stmt.executeUpdate(query);
         } catch (SQLException sqlException){

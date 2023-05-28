@@ -166,4 +166,28 @@ public class Response {
 //            out.close();
 //        }
     }
+
+    public static void exit_res(Socket serverSocket){
+        PrintWriter out = null;
+        try {
+            //Connecting to output stream
+            OutputStream outputStream = serverSocket.getOutputStream();
+            out = new PrintWriter(outputStream);
+
+            //Json
+            JsonObject jsonResponse = new JsonObject();
+            jsonResponse.addProperty("response", "EXITED SUCCESSFULLY");
+            //Sending json object over the socket
+            System.out.println("SENDING: " + jsonResponse);
+            out.println(jsonResponse);
+            out.flush();
+        }
+        catch (IOException io){
+            io.printStackTrace();
+        }
+//        finally {
+//            assert out != null;
+//            out.close();
+//        }
+    }
 }

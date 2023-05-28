@@ -20,7 +20,6 @@ public class ClientHandler {
     private Scanner in;
 
     //Constructor
-
     public ClientHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
         try {
@@ -49,6 +48,7 @@ public class ClientHandler {
                 SELECT FROM BELOW BY IT'S NUMBER
                 1- SIGN UP
                 2- SIGN IN
+                3- QUIT
                 """);
         int optionMenu = input.nextInt();
         input.nextLine();
@@ -74,7 +74,7 @@ public class ClientHandler {
                 Request.sign_up_req(clientSocket, jsonRequest);
 
                 //Receiving Response
-                Thread.sleep(500);
+                //Thread.sleep(500);
                 String response = in.nextLine();
                 JsonObject jsonResponse = new Gson().fromJson(response, JsonObject.class);
                 System.out.println("RECEIVING: " + jsonResponse.get("response").getAsString());
@@ -97,7 +97,7 @@ public class ClientHandler {
                 Request.sign_in_req(clientSocket, jsonRequest);
 
                 //Receiving Response
-                Thread.sleep(500);
+                //Thread.sleep(500);
                 String response = in.nextLine();
                 JsonObject jsonResponse = new Gson().fromJson(response, JsonObject.class);
                 String validation = jsonResponse.get("response").getAsString();
@@ -111,6 +111,25 @@ public class ClientHandler {
                             jsonAccount.get("password").getAsString(),
                             LocalDate.parse(jsonAccount.get("date_of_birth").getAsString()));
                     userPage(account);
+                }
+            }
+            case 3 -> {
+                //EXIT
+                //Json
+                JsonObject jsonRequest = new JsonObject();
+                jsonRequest.addProperty("requestType", "QUIT");
+
+                //Sending Request
+                System.out.println("SENDING: EXIT REQUEST");
+                Request.sign_up_req(clientSocket, jsonRequest);
+
+                //Receiving Response
+                //Thread.sleep(500);
+                String response = in.nextLine();
+                JsonObject jsonResponse = new Gson().fromJson(response, JsonObject.class);
+                System.out.println("RECEIVING: " + jsonResponse.get("response").getAsString());
+                if (jsonResponse.get("response").getAsString().equals("EXITED SUCCESSFULLY")){
+                    return;
                 }
             }
         }
@@ -143,7 +162,7 @@ public class ClientHandler {
                 Request.show_all_games_req(clientSocket, jsonRequest);
 
                 //Receiving response
-                Thread.sleep(500);
+                //Thread.sleep(500);
                 String response = in.nextLine();
                 JsonObject jsonResponse = new Gson().fromJson(response, JsonObject.class);
                 System.out.println("RECEIVING :" + jsonResponse.get("response").getAsString());
@@ -167,7 +186,7 @@ public class ClientHandler {
                 System.out.println("SENDING : SHOW AN SPECIFIC GAME REQUEST");
 
                 //Receiving Response
-                Thread.sleep(500);
+                //Thread.sleep(500);
                 String response = in.nextLine();
                 JsonObject jsonResponse = new Gson().fromJson(response, JsonObject.class);
                 System.out.println("RECEIVING :" + jsonResponse.get("response").getAsString());
@@ -198,7 +217,7 @@ public class ClientHandler {
                         System.out.println("SENDING : SHOW DOWNLOADED GAMES REQUEST");
 
                         //Receiving Response
-                        Thread.sleep(500);
+                        //Thread.sleep(500);
                         String response = in.nextLine();
                         JsonObject jsonResponse = new Gson().fromJson(response, JsonObject.class);
                         System.out.println("RECEIVING :" + jsonResponse.get("response").getAsString());
@@ -223,7 +242,7 @@ public class ClientHandler {
                         System.out.println("SENDING : DOWNLOAD GAME REQUEST");
 
                         //Receiving Response
-                        Thread.sleep(500);
+                        //Thread.sleep(500);
                         String response = in.nextLine();
                         System.out.println(response);
                         JsonObject jsonResponse = new Gson().fromJson(response, JsonObject.class);
@@ -290,7 +309,6 @@ public class ClientHandler {
         //Receive the file size from the server
         DataInputStream dataInputStream = new DataInputStream(inputStream);
         long fileSize = dataInputStream.readLong();
-        System.out.println(fileSize);
 
         //Receive the file data
         byte[] buffer = new byte[4096];

@@ -40,13 +40,13 @@ public class SteamService implements Runnable {
 
     public void doService() {
         while (true) {
-            while (!in.hasNextLine()){
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+//            while (!in.hasNextLine()){
+//                try {
+//                    Thread.sleep(1000);
+//                } catch (InterruptedException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
 
             //Receiving data
             String jsonString = in.nextLine();
@@ -54,7 +54,9 @@ public class SteamService implements Runnable {
 
             JsonObject jsonRequest = new Gson().fromJson(jsonString, JsonObject.class);
             String requestType = jsonRequest.get("requestType").getAsString();
+            System.out.println("requesttype :" + requestType);
             if (requestType.equals("QUIT")) {
+                Response.exit_res(serverSocket);
                 return;
             } else {
                 executeRequest(jsonRequest);
@@ -141,9 +143,11 @@ public class SteamService implements Runnable {
                 if (file_path != null){
 
                     if (QueryDB.hasDownloadedGame(account_id, game_id)){
+                        System.out.println("has downloaded that before");
                         QueryDB.downloadGame(account_id, game_id);
                     } else {
                         QueryDB.insertToDownloads(account_id, game_id);
+                        System.out.println("hasn't");
                     }
                     //Sending Response
                     Response.download_game_res(serverSocket, game_id);
@@ -166,10 +170,9 @@ public class SteamService implements Runnable {
         OutputStream outputStream = serverSocket.getOutputStream();
 
         //Send the file size to client
-        long fileSize = file.length();
         DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+        long fileSize = file.length();
         dataOutputStream.writeLong(fileSize);
-        dataOutputStream.flush();
 
         //Send the file data
         byte[] buffer = new byte[4096];
