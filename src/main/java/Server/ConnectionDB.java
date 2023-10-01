@@ -1,10 +1,10 @@
-package Shared;
+package Server;
 
 import java.sql.*;
 
 public class ConnectionDB {
     public static Connection connectDB() throws SQLException{
-        // SQLite connection string
+        //SQLite connection string
         String url = "jdbc:sqlite:SteamDB.db";
         Connection conn = null;
         try {

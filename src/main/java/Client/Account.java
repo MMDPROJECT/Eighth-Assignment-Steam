@@ -1,6 +1,7 @@
 package Client;
 
-import Shared.ConnectionDB;
+import Server.ConnectionDB;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,6 +23,13 @@ public class Account {
         this.password = password;
         this.date_of_birth = date_of_birth;
         insertAccount();
+    }
+
+    public Account(UUID account_id, String username, String password, LocalDate date_of_birth) {
+        this.account_id = account_id;
+        this.username = username;
+        this.password = password;
+        this.date_of_birth = date_of_birth;
     }
 
     //Getter and Setters
@@ -60,16 +68,25 @@ public class Account {
 
     private void insertAccount(){
         try {
+            //Connection and Query to database
             Connection conn = ConnectionDB.connectDB();
             String query = "INSERT INTO Accounts (account_id, username, password, date_of_birth) VALUES(?,?,?,?)";
             PreparedStatement psmt = conn.prepareStatement(query);
             psmt.setString(1, this.account_id.toString());
             psmt.setString(2, this.username);
-            psmt.setString(3, this.password);
+            psmt.setString(3, hashPassword(password));
             psmt.setString(4, this.date_of_birth.toString());
             psmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public String hashPassword(String password){
+        return BCrypt.hashpw(password, BCrypt.gensalt());
+    }
+
+    public static Boolean checkPassword(String password, String hashedPass){
+        return BCrypt.checkpw(password, hashedPass);
     }
 }
